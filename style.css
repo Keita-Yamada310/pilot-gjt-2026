@@ -1,0 +1,57 @@
+body {
+  background: #f5f7fa;
+}
+
+.jspsych-content {
+  max-width: 1050px;
+}
+
+.gjt-card {
+  background: white;
+  border: 1px solid #d9e0e8;
+  border-radius: 14px;
+  padding: 34px 42px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.07);
+}
+
+.gjt-progress {
+  text-align: right;
+  color: #5d6875;
+  font-size: 16px;
+  margin-bottom: 22px;
+}
+
+.gjt-sentence {
+  font-size: 34px;
+  line-height: 1.45;
+  margin: 38px 0 42px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.gjt-label-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 12px 10px;
+}
+
+.gjt-scale .jspsych-btn {
+  min-width: 72px;
+  min-height: 58px;
+  font-size: 22px;
+  margin: 6px;
+  border-radius: 9px;
+}
+
+.timeout-note {
+  color: #687481;
+  font-size: 15px;
+  margin-top: 18px;
+}
+
+.save-message {
+  font-size: 24px;
+  line-height: 1.6;
+}
