@@ -53,8 +53,14 @@ timeline.push({
       <h2>説明</h2>
       <p>画面に英文が1文ずつ表示されます。</p>
       <p>その英文が、英語としてどの程度文法的だと思うかを判断してください。</p>
-      <p><strong>1 = 明らかに非文法的</strong><br>
-         <strong>6 = 明らかに文法的</strong></p>
+      <div class="instruction-scale">
+        <div class="instruction-label instruction-label-left">
+          1 = 英語の文法として<br>明らかに正しくない
+        </div>
+        <div class="instruction-label instruction-label-right">
+          6 = 英語の文法として<br>明らかに正しい
+        </div>
+      </div>
       <p>各文は10秒以内に判断してください。</p>
     </div>`,
     `<div class="gjt-card">

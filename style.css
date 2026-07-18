@@ -188,3 +188,46 @@ body {
   text-align: right;
   line-height: 1.35;
 }
+
+
+.instruction-scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 28px;
+  max-width: 760px;
+  margin: 24px auto;
+}
+
+.instruction-label {
+  width: 46%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+}
+
+.instruction-label-left {
+  color: #d7191c;
+  text-align: left;
+}
+
+.instruction-label-right {
+  color: #0066cc;
+  text-align: right;
+}
+
+@media (max-width: 700px) {
+  .instruction-scale {
+    flex-direction: column;
+  }
+
+  .instruction-label {
+    width: auto;
+  }
+
+  .instruction-label-right {
+    text-align: left;
+  }
+}
