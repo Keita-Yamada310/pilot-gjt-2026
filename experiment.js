@@ -1,17 +1,20 @@
 const jsPsych = initJsPsych({
   show_progress_bar: true,
   auto_update_progress_bar: false,
-  on_finish: async function() {
-    // Saving is handled in the final trial.
-  }
+  message_progress_bar: "本課題の進捗"
 });
 
 const sessionId = jsPsych.randomization.randomID(10);
 const startTimestamp = new Date().toISOString();
 
+function countEnglishWords(text) {
+  const matches = String(text || "").match(/[A-Za-z]+(?:'[A-Za-z]+)?/g);
+  return matches ? matches.length : 0;
+}
+
 jsPsych.data.addProperties({
   session_id: sessionId,
-  study: "pilot_gjt_30",
+  study: "pilot_gjt_30_v2",
   jspsych_version: "8.2.3",
   session_start_iso: startTimestamp,
   user_agent: navigator.userAgent,
@@ -21,7 +24,7 @@ jsPsych.data.addProperties({
 
 const timeline = [];
 
-const participantForm = {
+timeline.push({
   type: jsPsychSurveyHtmlForm,
   preamble: `
     <div class="gjt-card">
@@ -41,8 +44,7 @@ const participantForm = {
     const pid = String(data.response.participant_id || "").trim();
     jsPsych.data.addProperties({ participant_id: pid });
   }
-};
-timeline.push(participantForm);
+});
 
 timeline.push({
   type: jsPsychInstructions,
@@ -73,7 +75,10 @@ timeline.push({
   fullscreen_mode: true,
   message: `<div class="gjt-card"><p>「開始」を押すと全画面表示になります。</p></div>`,
   button_label: "開始",
-  data: { phase: "fullscreen_start" }
+  data: { phase: "fullscreen_start" },
+  on_finish: function() {
+    jsPsych.progressBar.progress = 0;
+  }
 });
 
 const practiceItems = [
@@ -93,47 +98,58 @@ function makeJudgmentTrial(isPractice = false) {
   return {
     type: jsPsychHtmlButtonResponse,
     stimulus: function() {
-      const sentence = isPractice
-        ? jsPsych.evaluateTimelineVariable("sentence")
-        : jsPsych.evaluateTimelineVariable("sentence");
+      const sentence = jsPsych.evaluateTimelineVariable("sentence");
       const progress = isPractice
         ? "練習"
-        : `本課題 ${jsPsych.evaluateTimelineVariable("display_number")} / 30`;
+        : `本課題 ${jsPsych.evaluateTimelineVariable("display_number")} / ${TOTAL_GJT_ITEMS}`;
+
       return `
         <div class="gjt-card">
           <div class="gjt-progress">${progress}</div>
           <div class="gjt-sentence">${sentence}</div>
-          <div class="gjt-label-row">
-            <span>1　明らかに非文法的</span>
-            <span>6　明らかに文法的</span>
+          <div class="scale-wrap">
+            <div class="gjt-label-row">
+              <span>明らかに非文法的</span>
+              <span>明らかに文法的</span>
+            </div>
           </div>
-          <div class="timeout-note">10秒以内に1つ選んでください。</div>
+          <div class="timeout-note">1〜6のうち最も近い数字を、10秒以内に選んでください。</div>
         </div>`;
     },
     choices: ["1", "2", "3", "4", "5", "6"],
+    button_layout: "grid",
+    grid_rows: 1,
+    grid_columns: 6,
     button_html: function(choice, choiceIndex) {
-      return `<button class="jspsych-btn" data-choice="${choiceIndex}">${choice}</button>`;
+      return `<button class="jspsych-btn" data-choice="${choiceIndex}"
+              aria-label="${choice}">${choice}</button>`;
     },
     trial_duration: TRIAL_DURATION_MS,
     response_ends_trial: true,
     css_classes: ["gjt-scale"],
     data: function() {
+      const sentence = jsPsych.evaluateTimelineVariable("sentence");
+
       if (isPractice) {
         return {
           phase: "practice",
           practice_id: jsPsych.evaluateTimelineVariable("practice_id"),
-          sentence_text: jsPsych.evaluateTimelineVariable("sentence"),
+          sentence_text: sentence,
+          sentence_word_count: countEnglishWords(sentence),
           presented_status: jsPsych.evaluateTimelineVariable("expected_status")
         };
       }
+
       return {
         phase: "gjt",
         item_id: jsPsych.evaluateTimelineVariable("item_id"),
+        presentation_order: jsPsych.evaluateTimelineVariable("display_number"),
         category: jsPsych.evaluateTimelineVariable("category"),
         target_verb: jsPsych.evaluateTimelineVariable("verb"),
         target_pattern: jsPsych.evaluateTimelineVariable("pattern"),
         corpus_frequency: jsPsych.evaluateTimelineVariable("corpus_frequency"),
-        sentence_text: jsPsych.evaluateTimelineVariable("sentence"),
+        sentence_text: sentence,
+        sentence_word_count: countEnglishWords(sentence),
         presented_status: jsPsych.evaluateTimelineVariable("presented_status"),
         error_type: jsPsych.evaluateTimelineVariable("error_type")
       };
@@ -141,7 +157,12 @@ function makeJudgmentTrial(isPractice = false) {
     on_finish: function(data) {
       data.rating = data.response === null ? null : Number(data.response) + 1;
       data.timed_out = data.response === null;
-      data.response_label = data.rating;
+
+      if (!isPractice) {
+        const completed = jsPsych.data.get()
+          .filter({ phase: "gjt" }).count();
+        jsPsych.progressBar.progress = Math.min(completed / TOTAL_GJT_ITEMS, 1);
+      }
     }
   };
 }
@@ -161,7 +182,10 @@ timeline.push({
       <p>提示順は参加者ごとにランダムです。</p>
     </div>`,
   choices: ["本課題を始める"],
-  data: { phase: "practice_end" }
+  data: { phase: "practice_end" },
+  on_finish: function() {
+    jsPsych.progressBar.progress = 0;
+  }
 });
 
 const randomizedItems = jsPsych.randomization.shuffle(GJT_ITEMS).map((item, index) => ({
@@ -171,7 +195,9 @@ const randomizedItems = jsPsych.randomization.shuffle(GJT_ITEMS).map((item, inde
 
 timeline.push({
   timeline: [makeJudgmentTrial(false)],
-  timeline_variables: RANDOMIZE_ITEMS ? randomizedItems : GJT_ITEMS.map((x, i) => ({...x, display_number: i + 1})),
+  timeline_variables: RANDOMIZE_ITEMS
+    ? randomizedItems
+    : GJT_ITEMS.map((item, index) => ({ ...item, display_number: index + 1 })),
   randomize_order: false
 });
 
@@ -192,64 +218,84 @@ async function saveToDataPipe(csvText, filename) {
     })
   });
 
-  const result = await response.json();
-  if (!response.ok || result.error) {
-    throw new Error(result.message || `HTTP ${response.status}`);
+  let result = {};
+  try {
+    result = await response.json();
+  } catch (_error) {
+    // The response may not contain JSON on a network error.
   }
+
+  if (!response.ok || result.error) {
+    throw new Error(result.message || `DataPipe returned HTTP ${response.status}`);
+  }
+
   return result;
 }
 
 timeline.push({
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<div class="gjt-card save-message"><p>回答を保存しています。画面を閉じないでください。</p></div>`,
+  stimulus: `
+    <div class="gjt-card save-message" id="save-panel">
+      <div class="spinner" aria-hidden="true"></div>
+      <h2>回答を保存しています</h2>
+      <p>保存完了の表示が出るまで、画面を閉じないでください。</p>
+    </div>`,
   choices: [],
-  trial_duration: 250,
-  data: { phase: "saving_start" },
-  on_finish: async function() {
+  data: { phase: "saving_screen" },
+
+  on_load: async function() {
     const participantId = jsPsych.data.get().values()
-      .find(x => x.participant_id)?.participant_id || "unknown";
+      .find(row => row.participant_id)?.participant_id || "unknown";
     const safePid = participantId.replace(/[^A-Za-z0-9_-]/g, "_");
-    const filename = `pilot_gjt_${safePid}_${sessionId}.csv`;
+    const filename = `pilot_gjt_v2_${safePid}_${sessionId}.csv`;
+
+    const gjtRows = jsPsych.data.get().filter({ phase: "gjt" });
+    const completedCount = gjtRows.count();
+    const timedOutCount = gjtRows.filter({ timed_out: true }).count();
 
     jsPsych.data.addProperties({
-      session_end_iso: new Date().toISOString()
+      session_end_iso: new Date().toISOString(),
+      completed_gjt_items: completedCount,
+      timed_out_gjt_items: timedOutCount
     });
+
+    // Allow the saving screen to remain visible long enough to be read.
+    await new Promise(resolve => setTimeout(resolve, 900));
 
     const csvText = jsPsych.data.get().csv();
+    const panel = document.getElementById("save-panel");
 
-    let saveStatus = "local_download";
-    let saveMessage = "";
-
-    if (DATAPIPE_EXPERIMENT_ID.trim() !== "") {
-      try {
-        await saveToDataPipe(csvText, filename);
-        saveStatus = "datapipe_success";
-        saveMessage = "回答は正常に保存されました。";
-      } catch (error) {
-        console.error("DataPipe save failed:", error);
-        jsPsych.data.get().localSave("csv", filename);
-        saveStatus = "datapipe_failed_local_backup";
-        saveMessage = "オンライン保存に失敗したため、CSVをこのPCに保存しました。担当者を呼んでください。";
+    try {
+      if (!DATAPIPE_EXPERIMENT_ID.trim()) {
+        throw new Error("DataPipe Experiment ID is empty.");
       }
-    } else {
-      jsPsych.data.get().localSave("csv", filename);
-      saveMessage = "CSVをこのPCに保存しました。";
-    }
 
-    jsPsych.data.write({
-      phase: "save_result",
-      save_status: saveStatus,
-      filename: filename
-    });
+      await saveToDataPipe(csvText, filename);
 
-    document.body.innerHTML = `
-      <div id="jspsych-content" class="jspsych-content">
-        <div class="gjt-card save-message">
-          <h2>終了</h2>
-          <p>${saveMessage}</p>
-          <p>ご協力ありがとうございました。</p>
+      panel.innerHTML = `
+        <h2 class="status-success">保存が完了しました</h2>
+        <div class="summary-box">
+          <div><strong>参加者番号：</strong>${participantId}</div>
+          <div><strong>完了項目：</strong>${completedCount} / ${TOTAL_GJT_ITEMS}</div>
+          <div><strong>時間切れ：</strong>${timedOutCount} 項目</div>
+          <div><strong>保存先：</strong>OSF（DataPipe）</div>
         </div>
-      </div>`;
+        <p>ご協力ありがとうございました。</p>
+        <p><strong>この画面を担当者に見せてください。</strong></p>`;
+
+    } catch (error) {
+      console.error("DataPipe save failed:", error);
+      jsPsych.data.get().localSave("csv", filename);
+
+      panel.innerHTML = `
+        <h2 class="status-error">オンライン保存に失敗しました</h2>
+        <div class="summary-box">
+          <div><strong>参加者番号：</strong>${participantId}</div>
+          <div><strong>完了項目：</strong>${completedCount} / ${TOTAL_GJT_ITEMS}</div>
+          <div><strong>バックアップ：</strong>CSVをこのPCに保存しました</div>
+        </div>
+        <p>この画面を閉じず、担当者を呼んでください。</p>`;
+    }
   }
 });
 
