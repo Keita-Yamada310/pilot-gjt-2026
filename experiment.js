@@ -109,8 +109,8 @@ function makeJudgmentTrial(isPractice = false) {
           <div class="gjt-sentence">${sentence}</div>
           <div class="scale-wrap">
             <div class="gjt-label-row">
-              <span>明らかに非文法的</span>
-              <span>明らかに文法的</span>
+              <span class="label-left">英語の文法として<br>明らかに正しくない</span>
+              <span class="label-right">英語の文法として<br>明らかに正しい</span>
             </div>
           </div>
           <div class="timeout-note">1〜6のうち最も近い数字を、10秒以内に選んでください。</div>

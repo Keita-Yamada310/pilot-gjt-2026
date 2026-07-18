@@ -175,3 +175,16 @@ body {
     font-size: 14px;
   }
 }
+
+
+.label-left {
+  color: #d7191c;
+  text-align: left;
+  line-height: 1.35;
+}
+
+.label-right {
+  color: #0066cc;
+  text-align: right;
+  line-height: 1.35;
+}
