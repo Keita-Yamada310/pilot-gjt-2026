@@ -1,0 +1,12 @@
+修正内容
+========
+jsPsych 8 の html-button-response では button_html は文字列ではなく関数です。
+旧コード:
+button_html: `<button class="jspsych-btn">%choice%</button>`,
+
+修正版:
+button_html: function(choice, choiceIndex) {
+  return `<button class="jspsych-btn" data-choice="${choiceIndex}">${choice}</button>`;
+},
+
+GitHubでは experiment.js をこの修正版で置き換えてください。
