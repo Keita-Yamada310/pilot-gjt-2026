@@ -1,0 +1,263 @@
+
+:root {
+  --ink: #17212b;
+  --muted: #667483;
+  --line: #d6dee7;
+  --panel: #ffffff;
+  --page: #f4f7fa;
+  --accent: #285f9c;
+  --accent-dark: #174979;
+  --success: #18794e;
+  --danger: #b42318;
+}
+
+html, body {
+  min-height: 100%;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: Arial, "Yu Gothic", "Meiryo", sans-serif;
+}
+
+.jspsych-content {
+  max-width: 1080px;
+}
+
+.gjt-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 34px 44px;
+  box-shadow: 0 5px 18px rgba(23, 33, 43, .08);
+}
+
+.gjt-progress {
+  text-align: right;
+  color: var(--muted);
+  font-size: 17px;
+  margin-bottom: 18px;
+}
+
+.gjt-sentence {
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(30px, 3vw, 40px);
+  line-height: 1.45;
+  margin: 22px 0 22px;
+}
+
+.scale-wrap {
+  max-width: 790px;
+  margin: 0 auto;
+}
+
+.gjt-label-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  font-size: 17px;
+  font-weight: 700;
+  margin: 8px 4px 12px;
+}
+
+.gjt-scale .jspsych-html-button-response-btngroup {
+  position: relative;
+  width: 100%;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(70px, 1fr)) 48px repeat(3, minmax(70px, 1fr)) !important;
+  column-gap: 12px !important;
+  align-items: stretch;
+}
+
+.gjt-scale .jspsych-html-button-response-btngroup::before {
+  content: "";
+  grid-column: 4;
+  grid-row: 1;
+  justify-self: center;
+  align-self: center;
+  width: 1px;
+  height: 48px;
+  background: #b8c2cc;
+}
+
+.gjt-scale .jspsych-html-button-response-button {
+  margin: 0 !important;
+  width: 100%;
+}
+
+.gjt-scale .jspsych-html-button-response-button:nth-child(1) { grid-column: 1; }
+.gjt-scale .jspsych-html-button-response-button:nth-child(2) { grid-column: 2; }
+.gjt-scale .jspsych-html-button-response-button:nth-child(3) { grid-column: 3; }
+.gjt-scale .jspsych-html-button-response-button:nth-child(4) { grid-column: 5; }
+.gjt-scale .jspsych-html-button-response-button:nth-child(5) { grid-column: 6; }
+.gjt-scale .jspsych-html-button-response-button:nth-child(6) { grid-column: 7; }
+
+.gjt-scale .jspsych-btn {
+  width: 100%;
+  min-height: 64px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 2px solid #9eb3c8;
+  border-radius: 11px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .08s ease, border-color .12s ease, background .12s ease;
+}
+
+.gjt-scale .jspsych-btn:hover,
+.gjt-scale .jspsych-btn:focus-visible {
+  background: #eaf2fb;
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.timeout-note {
+  color: var(--muted);
+  font-size: 15px;
+  margin-top: 18px;
+}
+
+.save-message {
+  font-size: 21px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  margin: 10px auto 22px;
+  border: 5px solid #d8e2ec;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .85s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.status-success {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.status-error {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.summary-box {
+  margin: 20px auto;
+  padding: 16px 22px;
+  max-width: 520px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  text-align: left;
+  background: #f8fafc;
+}
+
+#jspsych-progressbar-container {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 18px;
+}
+
+#jspsych-progressbar-outer {
+  border-radius: 99px;
+  border: 1px solid #b9c7d5;
+}
+
+#jspsych-progressbar-inner {
+  background: var(--accent);
+  border-radius: 99px;
+}
+
+@media (max-width: 760px) {
+  .gjt-card {
+    padding: 26px 18px;
+  }
+
+  .gjt-scale .jspsych-html-button-response-btngroup {
+    grid-template-columns: repeat(3, minmax(44px, 1fr)) 22px repeat(3, minmax(44px, 1fr)) !important;
+    column-gap: 5px !important;
+  }
+
+  .gjt-scale .jspsych-html-button-response-btngroup::before {
+    height: 40px;
+  }
+
+  .gjt-scale .jspsych-btn {
+    min-width: 0;
+    min-height: 56px;
+    font-size: 20px;
+    padding: 8px 4px;
+  }
+
+  .gjt-label-row {
+    font-size: 14px;
+  }
+}
+
+
+.label-left {
+  color: #d7191c;
+  text-align: left;
+  line-height: 1.35;
+}
+
+.label-right {
+  color: #0066cc;
+  text-align: right;
+  line-height: 1.35;
+}
+
+
+.instruction-scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 28px;
+  max-width: 760px;
+  margin: 24px auto;
+}
+
+.instruction-label {
+  width: 46%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+}
+
+.instruction-label-left {
+  color: #d7191c;
+  text-align: left;
+}
+
+.instruction-label-right {
+  color: #0066cc;
+  text-align: right;
+}
+
+@media (max-width: 700px) {
+  .instruction-scale {
+    flex-direction: column;
+  }
+
+  .instruction-label {
+    width: auto;
+  }
+
+  .instruction-label-right {
+    text-align: left;
+  }
+}
